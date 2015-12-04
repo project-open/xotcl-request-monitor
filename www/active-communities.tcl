@@ -20,7 +20,7 @@ TableWidget t1 \
       Field count -label Count -orderby count
     }
 
-foreach {att order} [split $orderby ,] break
+lassign [split $orderby ,] att order
 t1 orderby -order [expr {$order eq "asc" ? "increasing" : "decreasing"}] $att
 
 foreach {community_id users} [throttle users active_communities] {
@@ -31,3 +31,8 @@ foreach {community_id users} [throttle users active_communities] {
       -count [llength [lsort -unique [eval concat $users]]]
 }
 set t1 [t1 asHTML]
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:
