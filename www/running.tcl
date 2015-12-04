@@ -19,7 +19,7 @@ if {!$admin_p} {
 }
 
 set running_requests [throttle running]
-if {[info command bgdelivery] ne ""} {
+if {[info commands bgdelivery] ne ""} {
    set background_requests [bgdelivery running]
 } else {
    set background_requests [list]
@@ -103,3 +103,9 @@ foreach r [lsort -decreasing -real -index 3 $sortable_requests] {
 }
 
 set t1 [t1 asHTML]
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:

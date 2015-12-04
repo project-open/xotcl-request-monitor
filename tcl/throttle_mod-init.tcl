@@ -1,7 +1,7 @@
 
 # we register the following filters only during startup, since
 # existing connection threads are not aware of the throttle object.
-if {[ns_server connections] == 0 && [info command ::throttle] ne ""} {
+if {[ns_server connections] == 0 && [info commands ::throttle] ne ""} {
   # 
   # Register the filter progs for url statistics.
   # The methods to be called have the name of the filter type.
@@ -23,3 +23,9 @@ if {[info commands ad_conn] eq ""} {
   ### this is probably not sufficient to do something useful...
 }
 
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:

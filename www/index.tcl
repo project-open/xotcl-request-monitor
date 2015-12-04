@@ -102,6 +102,7 @@ proc currentViews {} {
 
 if {$jsGraph} {
   # use javascript graphics
+  template::head::add_script -type text/javascript -src /resources/xotcl-request-monitor/diagram/diagram.js
 
   # draw a graph in form of an html table of with 500 pixels
   proc graph {values label type} {
@@ -127,7 +128,7 @@ if {$jsGraph} {
     regsub -all {,0} $end , end
     #ns_log Notice "begin: $begin, end: $end, $size $type"
 
-    set diagram [subst {<SCRIPT Language='JavaScript'>
+    set diagram [subst {<script type="text/javascript">
       document.open();
       var D=new Diagram();
       D.SetFrame(40, 20, 460, 120);
@@ -186,8 +187,8 @@ if {$jsGraph} {
 	}
 	set cl [expr {$c%2==0?"list-even":"list-odd"}]
 	append text [subst {
-	  <tr class='$cl'><td><font size='-2'>[lindex $v 0]</font></td>
-	  <td align='right'><font size='-2'>[lindex $v 1] $rps</font></td></tr>
+	  <tr class='$cl'><td><small>[lindex $v 0]</small></td>
+	  <td align='right'><small>[lindex $v 1] $rps</small></td></tr>
 	}]
       }
       append text "</table>\n</td></tr>\n"
@@ -265,7 +266,7 @@ if {[ns_info name] eq "NaviServer"}  {
 
 array set thread_avgs [throttle thread_avgs]
 
-if {[info command ::tlf::system_activity] ne ""} {
+if {[info commands ::tlf::system_activity] ne ""} {
   array set server_stats [::tlf::system_activity]
   set current_exercise_activity $server_stats(activity)
   set current_system_activity "$server_stats(activity) exercises last 15 mins, "
@@ -284,7 +285,7 @@ set authUsers24     [lindex $active24 1]
 set activeIP24      [lindex $active24 0]
 set activeTotal24   [expr {$authUsers24 + $activeIP24}]
 
-if {[info command ::dotlrn_community::get_community_id] ne ""} {
+if {[info commands ::dotlrn_community::get_community_id] ne ""} {
   set nr [throttle users nr_active_communities]
   set active_community_string "in <a href='./active-communities'>$nr communities</a> "
 } else {
@@ -304,3 +305,10 @@ if {[acs_user::site_wide_admin_p]} {
 } else {
     set param_url ""
 }
+
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:
