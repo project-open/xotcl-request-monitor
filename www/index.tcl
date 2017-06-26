@@ -45,7 +45,7 @@ proc currentSystemLoad {} {
   if {![catch {exec sysctl vm.loadavg kern.boottime} result]} {
       return $result
   }
-  return [exec /usr/bin/uptime]
+  return [im_exec uptime]
 }
 
 # collect current response time (per minute and hour)
