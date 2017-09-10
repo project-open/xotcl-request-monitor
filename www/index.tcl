@@ -42,7 +42,10 @@ proc currentSystemLoad {} {
     set f [open $procloadavg]; set c [read $f]; close $f
     return $c
   }
-  return [exec /usr/bin/uptime]
+  if {![catch {exec sysctl vm.loadavg kern.boottime} result]} {
+      return $result
+  }
+  return [im_exec uptime]
 }
 
 # collect current response time (per minute and hour)
@@ -55,19 +58,19 @@ proc currentResponseTime {} {
   }
   set avg_half_hour [avg_last_n $tm 30 cnt]
   if {$cnt > 0} {
-    set minstat "[format %4.2f $avg_half_hour] (last $cnt minutes), "
+    set minstat "[format %4.3f $avg_half_hour] (last $cnt minutes), "
   } else {
     set minstat ""
   }
   if {[llength $tm]>0} {
-    set lminstat "[format %4.2f [expr {[lindex $tm end]/1000.0}]] (last minute), "
+    set lminstat "[format %4.3f [expr {[lindex $tm end]/1000.0}]] (last minute), "
   } else {
     set lminstat ""
   }
   if {[llength $hours]>0} {
     set avg_last_day [avg_last_n $hours 24 cnt]
-    set hourstat "[format %4.2f [expr {[lindex $hours end]/1000.0}]] (last hour), "
-    append hourstat "[format %4.2f $avg_last_day] (last $cnt hours)"
+    set hourstat "[format %4.3f [expr {[lindex $hours end]/1000.0}]] (last hour), "
+    append hourstat "[format %4.3f $avg_last_day] (last $cnt hours)"
     set server_running "$cnt hours"
   } else {
     if {[llength $tm]>0} {
@@ -93,12 +96,13 @@ proc currentViews {} {
   set views_per_min_per_user [expr {60.0*$views_per_sec/[lindex $um end]}]
   set view_time [expr {$views_per_min_per_user>0 ? 
 	" avg. view time: [format %4.1f [expr {60.0/$views_per_min_per_user}]]" : ""}]
-  return "[format %4.1f $views_per_sec] views/sec, [format %4.2f $views_per_min_per_user] views/min/user,  $view_time"
+  return "[format %4.1f $views_per_sec] views/sec, [format %4.3f $views_per_min_per_user] views/min/user,  $view_time"
 }
 
 
 if {$jsGraph} {
   # use javascript graphics
+  template::head::add_script -type text/javascript -src /resources/xotcl-request-monitor/diagram/diagram.js
 
   # draw a graph in form of an html table of with 500 pixels
   proc graph {values label type} {
@@ -124,7 +128,7 @@ if {$jsGraph} {
     regsub -all {,0} $end , end
     #ns_log Notice "begin: $begin, end: $end, $size $type"
 
-    set diagram [subst {<SCRIPT Language='JavaScript'>
+    set diagram [subst {<script type="text/javascript">
       document.open();
       var D=new Diagram();
       D.SetFrame(40, 20, 460, 120);
@@ -183,8 +187,8 @@ if {$jsGraph} {
 	}
 	set cl [expr {$c%2==0?"list-even":"list-odd"}]
 	append text [subst {
-	  <tr class='$cl'><td><font size='-2'>[lindex $v 0]</font></td>
-	  <td align='right'><font size='-2'>[lindex $v 1] $rps</font></td></tr>
+	  <tr class='$cl'><td><small>[lindex $v 0]</small></td>
+	  <td align='right'><small>[lindex $v 1] $rps</small></td></tr>
 	}]
       }
       append text "</table>\n</td></tr>\n"
@@ -255,9 +259,14 @@ if {![catch {ns_conn contentsentlength}]} {
   set background  [expr {[llength $background_requests]/2}]
   append running /$background
 }
+if {[ns_info name] eq "NaviServer"}  {
+   # add info from background writer
+   append running /[llength [ns_writer list]]
+}
+
 array set thread_avgs [throttle thread_avgs]
 
-if {[info command ::tlf::system_activity] ne ""} {
+if {[info commands ::tlf::system_activity] ne ""} {
   array set server_stats [::tlf::system_activity]
   set current_exercise_activity $server_stats(activity)
   set current_system_activity "$server_stats(activity) exercises last 15 mins, "
@@ -276,7 +285,7 @@ set authUsers24     [lindex $active24 1]
 set activeIP24      [lindex $active24 0]
 set activeTotal24   [expr {$authUsers24 + $activeIP24}]
 
-if {[info command ::dotlrn_community::get_community_id] ne ""} {
+if {[info commands ::dotlrn_community::get_community_id] ne ""} {
   set nr [throttle users nr_active_communities]
   set active_community_string "in <a href='./active-communities'>$nr communities</a> "
 } else {
@@ -296,3 +305,10 @@ if {[acs_user::site_wide_admin_p]} {
 } else {
     set param_url ""
 }
+
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:
