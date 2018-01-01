@@ -32,11 +32,11 @@ TableWidget t1 -volatile \
       Field url        -label "URL" -orderby url
     }
 
-foreach {att order} [split $orderby ,] break
+lassign [split $orderby ,] att order
 t1 orderby -order [expr {$order eq "asc" ? "increasing" : "decreasing"}] $att
 
 foreach l $stat {
-  foreach {timestamp c url ms requestor} $l break
+  lassign $l timestamp c url ms requestor
   if {[string is integer $requestor]} {
     acs_user::get -user_id $requestor -array user
     set user_string "$user(first_names) $user(last_name)"
@@ -164,3 +164,8 @@ pageMaster set title $title
 pageMaster set context [lindex $context 0]
 
 ns_log notice "render time [time {t1 asHTML -page -master ::pageMaster}]"
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:

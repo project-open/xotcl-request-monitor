@@ -1,14 +1,5 @@
 <master>
-<property name="title">@title@</property>
-<if @jsGraph@ eq 1> 
-  <property name="header_stuff">
-    <SCRIPT Language="JavaScript" src="/resources/xotcl-request-monitor/diagram/diagram.js"></SCRIPT>
-  </property>
-  <property name="head">
-    <SCRIPT Language="JavaScript" src="/resources/xotcl-request-monitor/diagram/diagram.js"></SCRIPT>
-  </property>
-</if>
-
+<property name="doc(title)">@title;literal@</property>
 
 <table style="border: 0px solid blue; padding: 10px;">
   <tr><td><b>Active Users:</b></td><td>@active_user_string;noquote@</td><if @param_url@ ne "">
@@ -44,10 +35,11 @@
 @response_trend;noquote@
 
 <tr><td colspan='2'><h3 style="margin-top:10px;">Throttle Statistics</h3></td></tr>
-@throttle_stats;noquote@<br>
+<tr><td>@throttle_stats;noquote@</td></tr>
 
-Detailed <a href='throttle-statistics'>Throttle statistics</a>
 </table>
+<p>Detailed <a href='throttle-statistics'>Throttle statistics</a>
+
 </if>
 <else>
 <h3 style='text-align: center;'>Page View Statistics</h3>
