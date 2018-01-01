@@ -18,7 +18,7 @@ if {[ns_server connections] == 0 && [info commands ::throttle] ne ""} {
 # check if we are running under oacs; if not, provide 
 # minimal compatibility code
 if {[info commands ad_conn] eq ""} {
-  # otherwise provide alias for ad_conn and dummy for ad_get_user_id
+  # otherwise provide alias for ad_conn and dummy for auth::require_login
   interp alias {} ad_conn {} ns_conn
   ### this is probably not sufficient to do something useful...
 }
