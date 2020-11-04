@@ -5,7 +5,7 @@ ad_page_contract {
   
   @cvs-id $id: whos-online.tcl,v 1.1.1.1 2004/03/16 16:11:51 nsadmin exp $
 } -query {
-  {orderby:optional "date,desc"}
+  {orderby:token,optional "date,desc"}
   {all:optional 0}
 } -properties {
   title:onevalue
@@ -25,7 +25,7 @@ set tooltip(1) "Show all users"
 set all [expr {!$all}]
 set url [export_vars -base [ad_conn url] {all}]
 
-TableWidget t1 \
+TableWidget create t1 \
     -actions [subst {
       Action new -label "$label($all)" -url $url -tooltip "$tooltip($all)"
     }] \

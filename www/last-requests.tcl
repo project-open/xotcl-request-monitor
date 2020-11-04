@@ -6,7 +6,7 @@ ad_page_contract {
 } -query {
   request_key
   {all:optional 1}
-  {orderby:optional "last_modified,desc"}
+  {orderby:token,optional "last_modified,desc"}
 } -properties {
     title:onevalue
     context:onevalue
@@ -41,7 +41,7 @@ set tooltip(1) "Show all values"
 set all [expr {!$all}]
 set url [export_vars -base [ad_conn url] {request_key all}]
 
-TableWidget t1 \
+TableWidget create t1 \
     -actions [subst {
       Action new -label "$label($all)" -url $url -tooltip "$tooltip($all)"
     }] \
