@@ -6,7 +6,7 @@ ad_page_contract {
 } -query {
   request_key
   {all:optional 1}
-  {orderby:optional "last_modified,desc"}
+  {orderby:token,optional "last_modified,desc"}
 } -properties {
     title:onevalue
     context:onevalue
@@ -18,10 +18,10 @@ set context [list "Last Requests"]
 set hide_patterns [parameter::get -parameter hide-requests -default {*.css}]
 
 if {[string is integer $request_key]} {
-   acs_user::get -user_id $request_key -array user
-   set user_string "$user(first_names) $user(last_name)"
-   set tmp_url [acs_community_member_url -user_id $request_key]
-   append user_string " (<a href='$tmp_url'>$request_key</a>)" 
+    acs_user::get -user_id $request_key -array user
+    set user_string "$user(first_names) $user(last_name)"
+    set tmp_url [acs_community_member_url -user_id $request_key]
+    append user_string " (<a href='[ns_quotehtml $tmp_url]'>$request_key</a>)" 
 } else {
    set user_string $request_key 
 }
@@ -41,7 +41,7 @@ set tooltip(1) "Show all values"
 set all [expr {!$all}]
 set url [export_vars -base [ad_conn url] {request_key all}]
 
-TableWidget t1 \
+TableWidget create t1 \
     -actions [subst {
       Action new -label "$label($all)" -url $url -tooltip "$tooltip($all)"
     }] \
@@ -55,12 +55,12 @@ TableWidget t1 \
 
 set all [expr {!$all}]
 set requests [throttle users last_requests $request_key]
-#set last_timestamp [lindex [lindex $requests end] 0]
+#set last_timestamp [lindex $requests end 0]
 set last_timestamp [clock seconds]
 
 set hidden 0
 foreach element [lsort -index 0 -decreasing $requests] {
-  foreach {timestamp url pa} $element break
+  lassign $element timestamp url pa
   if {!$all} {
     set exclude 0
     foreach pattern $hide_patterns {
@@ -73,10 +73,10 @@ foreach element [lsort -index 0 -decreasing $requests] {
     if {$exclude} continue
   }
   set diff [expr {$last_timestamp-$timestamp}]
-  set url [string_truncate_middle -len 70 $url]
+  set url_label [string_truncate_middle -len 70 $url]
   t1 add       -time [clock format $timestamp] \
 	       -timediff $diff \
-      	       -url $url \
+      	       -url $url_label \
       	       -url.href "[ad_url]$url" \
 	       -pa $pa
 }
@@ -86,3 +86,9 @@ if {$hidden>0} {
   append user_string " (Patterns: $hide_patterns)"
 }
 set t1 [t1 asHTML]
+
+# Local variables:
+#    mode: tcl
+#    tcl-indent-level: 2
+#    indent-tabs-mode: nil
+# End:
